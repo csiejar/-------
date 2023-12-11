@@ -23,10 +23,10 @@ def Buy(stuID, Name):
     try:
         df = pd.read_csv('static/data/alreadyBought.csv')
     except FileNotFoundError:
-        df = pd.DataFrame(columns=['stuID', 'Name'])
+        df = pd.DataFrame(columns=['班級','學號', '姓名'])
 
     # 創建新的一行數據
-    new_data = {'stuID': stuID, 'Name': Name}
+    new_data = {'班級':"" ,'學號': stuID, '姓名': Name}
 
     # 將新數據追加到DataFrame
     df = pd.concat([df, pd.DataFrame([new_data])], ignore_index=True)

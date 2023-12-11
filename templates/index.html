@@ -1,55 +1,206 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>會員查詢</title>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="/static/css/styles.css">
-
-</head>
-<body>
-    <h1>會員查詢</h1>
-    
-    <label for="studentId">請輸入學號：</label>
-    <input type="text" id="studentId" placeholder="輸入學號">
-
-    <button onclick="checkMembership()">查詢</button>
-
-    <div id="result"></div>
-    <div id="status"></div>
-    <button onclick="Buy()" disabled>購買</div>
+    <!-- <link rel="stylesheet" type="text/css" href="/static/css/styles.css"> -->
+    <script src="/static/js/localstorage.js"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.3/gsap.min.js"
+      integrity="sha512-7Au1ULjlT8PP1Ygs6mDZh9NuQD0A5prSrAUiPHMXpU6g3UMd8qesVnhug5X4RoDr35x5upNpx0A6Sisz1LSTXA=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            height: {
+              "full-page": "100svh",
+            },
+            width: {
+              min: "320px",
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body>
+    <div
+      class="px-3 py-10 bg-gray-200 flex justify-center w-full h-full-page flex justify-center items-center"
+    >
+      <div class="max-w-xs min-w-min">
+        <form class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+          <div class="mb-4 text-center text-2xl font-extrabold">會員查詢</div>
+          <div class="mb-4">
+            <label
+              class="block text-gray-700 text-sm font-bold mb-2"
+              for="studentId"
+            >
+              請輸入學號：
+            </label>
+            <input
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              id="studentId"
+              type="text"
+              placeholder="輸入學號"
+            />
+          </div>
+          <div class="mb-4 text-center check-btn">
+            <button
+              class="shadow bg-purple-500 hover:bg-purple-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded"
+              type="button"
+              onclick="checkMembership()"
+            >
+              查詢
+            </button>
+          </div>
+          <div id="result" class="mb-4"></div>
+          <div class="mb-4 hidden name-form">
+            <label
+              class="block text-gray-700 text-sm font-bold mb-2"
+              for="name"
+            >
+              查無會員，請輸入姓名：
+            </label>
+            <input
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              id="name"
+              type="text"
+              placeholder="輸入姓名"
+              name="name"
+            />
+          </div>
+          <div class="buy-btn hidden mb-4 text-center">
+            <!-- ~~~ -->
+            <button
+              class="shadow bg-purple-500 hover:bg-purple-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded"
+              type="button"
+              onclick="Buy()"
+            >
+              購買
+            </button>
+          </div>
+          <script>
+            function NameShow() {
+              $(".name-form").removeClass("hidden");
+              gsap.fromTo(
+                ".name-form",
+                {
+                  opacity: 0,
+                },
+                {
+                  opacity: 1,
+                  duration: 0.3,
+                }
+              );
+            }
+            function ButtonHide() {
+              gsap.fromTo(
+                ".check-btn",
+                {
+                  opacity: 1,
+                },
+                {
+                  delay: 0.8,
+                  opacity: 0,
+                  duration: 0.3,
+                  onComplete: () => {
+                    $(".check-btn").addClass("hidden");
+                  },
+                }
+              );
+            }
+            function ButtonShow() {
+            $(".buy-btn").removeClass("hidden");
+              gsap.fromTo(
+                ".buy-btn",
+                {
+                  opacity: 0,
+                },
+                {
+                  opacity: 1,
+                  duration: 0.3,
+                  onComplete: () => {},
+                }
+              );
+            }
+          </script>
+        </form>
+        <p class="text-center text-gray-500 text-xs">
+          ©2023 NUTC CSIE. All rights reserved.
+        </p>
+      </div>
+    </div>
 
     <script>
-        function checkMembership() {
-            // 獲取輸入的學號
-            var studentId = $('#studentId').val();
+        const name = new setStorage("name","");
+      function checkMembership() {
+        // 獲取輸入的學號
+        let studentId = $("#studentId").val();
 
-            // 發送AJAX請求
-            $.ajax({
-                url: '/isMember',  // 這裡應該是後端API的路徑
-                method: 'POST',     // 使用POST方法
-                data: { studentId: studentId },  // 傳遞學號給後端
-                success: function(response) {
-                    // 在這裡處理後端的回應
-                    if (response.success) {
-                        // 回傳true，顯示會員資料
-                        $('#result').text('會員資料：' + response.studentInfo);
-                        $('#status').text('購票狀態：' + response.status);
-                    } else {
-                        // 回傳false或其他錯誤情況
-                        $('#result').text('查無此會員');
-                        $('#status').text('');
-                    }
-                },
-                error: function(error) {
-                    console.error('AJAX請求失敗', error);
-                }
-            });
+        // 發送AJAX請求
+        $.ajax({
+          url: "/isMember", // 這裡應該是後端API的路徑
+          method: "POST", // 使用POST方法
+          data: { studentId: studentId}, // 傳遞學號給後端
+          success: function (response) {
+            // 在這裡處理後端的回應
+            if (response.success) {
+              // 回傳true，顯示會員資料
+              $("#result").append(`<div><span class="font-bold">會員資料：</span >${response.studentInfo}</div><div><span class="font-bold">購票狀態：</span>${response.status}</div>`)
+            //   $("#result").text("會員資料：" + response.studentInfo);
+            //   $("#status").text("購票狀態：" + response.status);
+              ButtonHide();
+              // name = response.student_name;
+              // todo del
+              console.log(response);
+              console.log(response.student_name);
+              name.set(response.studentName);
+            } else {
+              // 回傳false或其他錯誤情況
+              NameShow();
+              ButtonHide();
+              //   $("#result").text("查無此會員");
+              //   $("#status").text("");
+            }
+            ButtonShow();
+          },
+          error: function (error) {
+            console.error("AJAX請求失敗", error);
+          },
+        });
+      }
+      function Buy() {
+        // 獲取輸入的學號
+        console.log(name.get());
+        let studentId = $("#studentId").val();
+        if (name === null){
+            name = $("#name").val();
         }
-        function Buy() {
-            // 購買
-        }
+
+        // 發送AJAX請求
+        $.ajax({
+          url: "/buy", // 這裡應該是後端API的路徑
+          method: "POST", // 使用POST方法
+          data: { studentId: studentId, name: name }, // 傳遞學號給後端
+          success: function (response) {
+            // 在這裡處理後端的回應
+            if (response.success) {
+                alert("購買成功")
+            } else {
+                alert("購買失敗")
+            }
+          },
+          error: function (error) {
+            console.error("AJAX請求失敗", error);
+          },
+        });
+      }
     </script>
-</body>
+  </body>
 </html>
